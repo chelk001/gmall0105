@@ -14,11 +14,9 @@ import com.atguigu.gmall.service.SkuService;
 import com.atguigu.gmall.util.RedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.client.RestTemplate;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 @Service

@@ -2,6 +2,7 @@ package com.atguigu.gmall.cart.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.atguigu.gmall.annotations.LoginRequired;
 import com.atguigu.gmall.bean.OmsCartItem;
 import com.atguigu.gmall.bean.PmsSkuInfo;
 import com.atguigu.gmall.service.CartService;
@@ -29,8 +30,19 @@ public class CartController {
     @Reference
     CartService cartService;
 
+    @RequestMapping("toTrade")
+    @LoginRequired(loginSuccess = true)
+    public String toTrade(HttpServletRequest request, HttpServletResponse response, HttpSession session, ModelMap modelMap) {
+
+        String memberId = (String) request.getAttribute("memberId");
+        String nickname = (String) request.getAttribute("nickname");
+
+        return "toTrade";
+    }
+
 
     @RequestMapping("checkCart")
+    @LoginRequired(loginSuccess = false)
     public String checkCart(String isChecked, String skuId, HttpServletRequest request, HttpServletResponse response, HttpSession session, ModelMap modelMap) {
 
         String memberId = "1";
@@ -45,7 +57,8 @@ public class CartController {
         // 将最新的数据从缓存中查出，渲染给内嵌页
         List<OmsCartItem> omsCartItems = cartService.cartList(memberId);
         modelMap.put("cartList", omsCartItems);
-        //被勾选的商品的总金额
+
+        // 被勾选商品的总额
         BigDecimal totalAmount = getTotalAmount(omsCartItems);
         modelMap.put("totalAmount", totalAmount);
         return "cartListInner";
@@ -53,6 +66,7 @@ public class CartController {
 
 
     @RequestMapping("cartList")
+    @LoginRequired(loginSuccess = false)
     public String cartList(HttpServletRequest request, HttpServletResponse response, HttpSession session, ModelMap modelMap) {
 
         List<OmsCartItem> omsCartItems = new ArrayList<>();
@@ -72,8 +86,9 @@ public class CartController {
         for (OmsCartItem omsCartItem : omsCartItems) {
             omsCartItem.setTotalPrice(omsCartItem.getPrice().multiply(omsCartItem.getQuantity()));
         }
+
         modelMap.put("cartList", omsCartItems);
-        //被勾选的商品的总金额
+        // 被勾选商品的总额
         BigDecimal totalAmount = getTotalAmount(omsCartItems);
         modelMap.put("totalAmount", totalAmount);
         return "cartList";
@@ -81,16 +96,20 @@ public class CartController {
 
     private BigDecimal getTotalAmount(List<OmsCartItem> omsCartItems) {
         BigDecimal totalAmount = new BigDecimal("0");
+
         for (OmsCartItem omsCartItem : omsCartItems) {
             BigDecimal totalPrice = omsCartItem.getTotalPrice();
+
             if (omsCartItem.getIsChecked().equals("1")) {
                 totalAmount = totalAmount.add(totalPrice);
             }
         }
+
         return totalAmount;
     }
 
     @RequestMapping("addToCart")
+    @LoginRequired(loginSuccess = false)
     public String addToCart(String skuId, int quantity, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
         List<OmsCartItem> omsCartItems = new ArrayList<>();
 
@@ -115,7 +134,8 @@ public class CartController {
 
 
         // 判断用户是否登录
-        String memberId = "1";//"1";
+        String memberId = "1";//"1";request.getAttribute("memberId");
+
 
         if (StringUtils.isBlank(memberId)) {
             // 用户没有登录
