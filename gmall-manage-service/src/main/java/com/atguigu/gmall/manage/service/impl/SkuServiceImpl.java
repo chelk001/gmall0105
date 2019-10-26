@@ -94,7 +94,7 @@ public class SkuServiceImpl implements SkuService {
             String skuKey = "sku:" + skuId + ":info";
             //查询redis中的数据
             String skuJson = jedis.get(skuKey);
-            if (StringUtils.isNotBlank("skuJson")) {
+            if (StringUtils.isNotBlank(skuJson)) {
                 pmsSkuInfo = JSON.parseObject(skuJson, PmsSkuInfo.class);
             } else {
                 //缓存中没有就查询数据库
